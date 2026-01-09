@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tarda de Jocs</title>
+    <link rel="manifest" href="manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Sniglet:wght@400;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #FFFAF0;
+            --primary: #FF6B6B;
+            --secondary: #4ECDC4;
+            --accent: #FFE66D;
+            --text: #2F2F2F;
+            --border-radius: 15px;
+        }
+
+        body {
+            font-family: 'Sniglet', cursive;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            color: var(--text);
+            touch-action: manipulation;
+        }
+
+        h1 {
+            text-align: center;
+            font-family: 'Fredoka One', cursive;
+            color: var(--primary);
+            font-size: 3rem;
+            text-shadow: 3px 3px 0px var(--accent);
+            margin-bottom: 20px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+            background: white;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        input {
+            padding: 10px;
+            border: 2px solid var(--secondary);
+            border-radius: 10px;
+            font-size: 1rem;
+        }
+
+        button {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        button:active { transform: scale(0.95); }
+
+        .table-container {
+            overflow-x: auto;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            padding: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 5px;
+        }
+
+        th {
+            background: #f8f8f8;
+            border-radius: var(--border-radius);
+            padding: 10px;
+        }
+
+        .player-header {
+            min-width: 100px;
+        }
+
+        .avatar-circle {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: var(--accent);
+            margin: 0 auto 5px;
+            border: 4px solid var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .avatar-circle img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .player-name-input {
+            width: 80px;
+            border: none;
+            background: transparent;
+            text-align: center;
+            font-weight: bold;
+            font-family: inherit;
+        }
+
+        .game-row td {
+            text-align: center;
+            height: 60px;
+            border-radius: 10px;
+            background: #FFF5F5;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            border: 2px dashed #eee;
+        }
+
+        .game-name-cell {
+            background: var(--primary) !important;
+            color: white;
+            min-width: 150px;
+            position: relative;
+        }
+
+        .delete-btn {
+            background: #ff4444;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            position: absolute;
+            left: -5px;
+            top: -5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Colores para las puntuaciones */
+        .score-1 { color: gold; font-size: 2rem; }
+        .score-2 { color: silver; }
+        .score-3 { color: #cd7f32; }
+        .score-check { color: #4CAF50; }
+        .score-x { color: #9C27B0; }
+    </style>
+</head>
+<body>
+
+    <h1>Tarda de Jocs</h1>
+
+    <div class="controls">
+        <input type="text" id="gameInput" placeholder="Nom del joc...">
+        <button onclick="addGame()">Afegir Joc 🎲</button>
+    </div>
+
+    <div class="table-container">
+        <table id="scoreTable">
+            <thead>
+                <tr>
+                    <th>Jocs</th>
+                    <script>
+                        // Generar 4 columnas de jugadores
+                        for(let i=1; i<=4; i++) {
+                            document.write(`
+                                <th class="player-header">
+                                    <div class="avatar-circle" id="avatar-${i}">
+                                        <span style="font-size:2rem">👤</span>
+                                    </div>
+                                    <input type="text" class="player-name-input" value="Jugador ${i}">
+                                </th>
+                            `);
+                        }
+                    </script>
+                </tr>
+            </thead>
+            <tbody id="gamesBody">
+                </tbody>
+        </table>
+    </div>
+
+    <script>
+        const scores = ["", "1", "2", "3", "4", "✅", "❌"];
+        const scoreClasses = ["", "score-1", "score-2", "score-3", "", "score-check", "score-x"];
+
+        function addGame() {
+            const input = document.getElementById('gameInput');
+            if (!input.value) return;
+
+            const tbody = document.getElementById('gamesBody');
+            const row = document.createElement('tr');
+            row.className = 'game-row';
+
+            // Celda del nombre del juego
+            let html = `<td class="game-name-cell">
+                            <div class="delete-btn" onclick="this.parentElement.parentElement.remove()">✕</div>
+                            <span contenteditable="true">${input.value}</span>
+                        </td>`;
+            
+            // Celdas de puntuación para los 4 jugadores
+            for (let i = 0; i < 4; i++) {
+                html += `<td onclick="cycleScore(this)" data-index="0"></td>`;
+            }
+
+            row.innerHTML = html;
+            tbody.appendChild(row);
+            input.value = '';
+        }
+
+        function cycleScore(cell) {
+            let currentIndex = parseInt(cell.getAttribute('data-index'));
+            let nextIndex = (currentIndex + 1) % scores.length;
+            
+            cell.setAttribute('data-index', nextIndex);
+            cell.innerHTML = scores[nextIndex];
+            
+            // Limpiar clases y añadir la nueva
+            cell.className = scoreClasses[nextIndex];
+        }
+
+        // Para las fotos en Base64, podrías hacer una función que al clicar el avatar pida la imagen
+        // Por ahora, como es para iPad, se queda así para que puedas editar nombres.
+    </script>
+</body>
+</html>
