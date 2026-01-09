@@ -1,0 +1,16 @@
+{
+  "short_name": "TardaJocs",
+  "name": "Tarda de Jocs Ranking",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3406/3406940.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "index.html",
+  "background_color": "#FFFAF0",
+  "display": "standalone",
+  "scope": "/",
+  "theme_color": "#FF6B6B"
+}
